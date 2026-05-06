@@ -1,13 +1,12 @@
-
 --[=[
- _________  ___  ___  ________  _______   _______   ________       ________  _______   ___      ___ 
+ _________  ___  ___  ________  _______   _______   ________       ________  _______   ___      ___
 |\___   ___\\  \|\  \|\   __  \|\  ___ \ |\  ___ \ |\   __  \     |\   ___ \|\  ___ \ |\  \    /  /|
 \|___ \  \_\ \  \\\  \ \  \|\  \ \   __/|\ \   __/|\ \  \|\  \    \ \  \_|\ \ \   __/|\ \  \  /  / /
-     \ \  \ \ \   __  \ \   _  _\ \  \_|/_\ \  \_|/_\ \  \\\  \    \ \  \ \\ \ \  \_|/_\ \  \/  / /       
-      \ \  \ \ \  \ \  \ \  \\  \\ \  \_|\ \ \  \_|\ \ \  \\\  \  __\ \  \_\\ \ \  \_|\ \ \    / /  
-       \ \__\ \ \__\ \__\ \__\\ _\\ \_______\ \_______\ \_____  \|\__\ \_______\ \_______\ \__/ /   
-        \|__|  \|__|\|__|\|__|\|__|\|_______|\|_______|\|___| \__\|__|\|_______|\|_______|\|__|/    
-                                                             \|__|                                                                                                                                      
+     \ \  \ \ \   __  \ \   _  _\ \  \_|/_\ \  \_|/_\ \  \\\  \    \ \  \ \\ \ \  \_|/_\ \  \/  / /
+      \ \  \ \ \  \ \  \ \  \\  \\ \  \_|\ \ \  \_|\ \ \  \\\  \  __\ \  \_\\ \ \  \_|\ \ \    / /
+       \ \__\ \ \__\ \__\ \__\\ _\\ \_______\ \_______\ \_____  \|\__\ \_______\ \_______\ \__/ /
+        \|__|  \|__|\|__|\|__|\|__|\|_______|\|_______|\|___| \__\|__|\|_______|\|_______|\|__|/
+                                                             \|__|
 --]=]
 
 -- Made by vanish
@@ -1638,6 +1637,45 @@ local fileContent = v.ClassName .. ": " .. v.Name
     table.insert(lines, "Total found: "..found)
     writefile(ROOT.."/Misc/NilInstances/nil_instances.txt", table.concat(lines,"\n"))
 end
+
+--------------------------------------------------------------
+
+-- ## fix for nil instances with children
+
+local function saveChildsFromNilScripts()
+    local basefolder = ROOT.."/Misc/NilInstances/Childs"
+    ensureFolder(basefolder)
+    if not getnilinstances then
+        logMsg("getnilinstances not available in this executor", "error")
+        return
+    end
+
+    local function process(v, parentFolder)
+        local currentfolder = parentFolder.."/"..safeName(v.Name)
+        ensureFolder(currentfolder)
+        if v:IsA("LocalScript") or v:IsA("ModuleScript") or v:IsA("Script") then
+            local src = getSource(v)
+            if src then
+                local filepath = currentfolder.."/"..safeName(v.Name)..".lua"
+                writefile(filepath, src)
+            end
+        end
+        for _, child in ipairs(v:GetChildren()) do
+            process(child, currentfolder)
+        end
+    end
+
+    for _, v in next, getnilinstances() do
+        if v:IsA("LocalScript") or v:IsA("ModuleScript") or v:IsA("Script") then
+            process(v, basefolder)
+        end
+    end
+end
+
+-- 👌👌
+
+--------------------------------------------------------------
+
 
 local function saveLighting()
     ensureFolder(ROOT.."/Misc/Lighting")
