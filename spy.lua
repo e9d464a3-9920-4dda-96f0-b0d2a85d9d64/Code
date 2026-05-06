@@ -26,7 +26,7 @@ local realconfigs = {
     supersecretdevtoggle = false
 }
 
-local DISCORD_WEBHOOK_URL = "" -- Change this to Yours to start logging the Remotes Via Discord Webhook
+local URL = "" -- Change this to Yours to start logging the Remotes Via Discord Webhook
 
 local configs = newproxy(true)
 local configsmetatable = getmetatable(configs)
@@ -987,10 +987,9 @@ end
 --- @param blocked any
 
 function newRemote(type, data)
-    -- Discord Thing
     spawn(function()
         pcall(function()
-            if not request or not DISCORD_WEBHOOK_URL or DISCORD_WEBHOOK_URL == "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN" then
+            if not request or not URL or URL == "https://discord.com/api/webhooks/WW/WW" then
                 return
             end
             
@@ -1013,7 +1012,7 @@ function newRemote(type, data)
             pcall(function()
                 generatedScript = genScript(remote, data.args)
                 if #generatedScript > 1500 then
-                    generatedScript = generatedScript:sub(1, 1500) .. "\n... [TRUNCATED - Script zu lang]"
+                    generatedScript = generatedScript:sub(1, 1500) .. "\n... [TRUNCATED - Script too long to send]"
                 end
             end)
             
@@ -1024,7 +1023,7 @@ function newRemote(type, data)
                 end)
             end
             
-            local embedColor = type == "event" and 16771072 or 6523125
+            local embedColor = type == "event" and 16777215 or 16777215
             
             local webhookData = {
                 embeds = {{
@@ -1064,13 +1063,13 @@ function newRemote(type, data)
                     },
                     timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
                     footer = {
-                        text = "Remote Logger | Debug ID: " .. (data.id or "N/A")
+                        text = "Remote Logged | Debug ID: " .. (data.id or "N/A")
                     }
                 }}
             }
             
             request({
-                Url = DISCORD_WEBHOOK_URL,
+                Url = URL,
                 Method = "POST",
                 Headers = {
                     ["Content-Type"] = "application/json"
