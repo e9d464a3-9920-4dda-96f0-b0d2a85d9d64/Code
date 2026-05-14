@@ -3,15 +3,36 @@
 ]]
 
 if rconsoleprint then
-    rconsoleprint("  _  _ ___ _____ ___   ___ _____   __\n")
-    rconsoleprint(" | || |_ _|_   _| _ \\ / __| _ \\ \\ / /\n")
-    rconsoleprint(" | __ || |  | | |  _/ \\__ \\  _/\\ V / \n")
-    rconsoleprint(" |_||_|___| |_| |_|   |___/_|   |_|  \n")
-    rconsoleprint("\n")
-    rconsoleprint("\n")
+    local _cf2 = clonefunction
+    local _rcp = _cf2(rconsoleprint)
+    local _clr = _cf2(rconsoleclear)
+    local _slp = _cf2(task.wait)
+
+local banner = "\27[90m------------------------------------------------\27[0m\n" ..
+        "\27[97m    __    __  __                        \n" ..
+        "   / /_  / /_/ /_____  _________  __  __\n" ..
+        "  / __ \\/ __/ __/ __ \\/ ___/ __ \\/ / / /\n" ..
+        " / / / / /_/ /_/ /_/ (__  ) /_/ / /_/ /\n" ..
+        "/_/ /_/\\__/\\__/ .___/____/ .___/\\__, /\n" ..
+        "              /_/        /_/    /____/\27[0m\n" ..
+        "\27[90m------------------------------------------------\27[0m\n" ..
+        "\27[93m  by vanish\27[0m  \27[90m|\27[0m  \27[92mv1\27[0m\n"
+
+    local loading = {"|", "/", "-", "\\"}
+
+    for i = 1, 12 do
+        _clr()
+        _rcp(banner .. "\n")
+        _rcp("\27[97m  loading " .. loading[(i % 4) + 1] .. "\27[0m\n")
+        _slp(0.1)
+    end
+
+    _clr()
+    _rcp(banner)
+    _rcp("\27[90m------------------------------------------------\27[0m\n\n")
 end
 
-assert(syn or http, "Unsupported exploit (needs syn.request or http.request)")
+assert(syn or http, "your Exploit cant use http spy")
 
 --- @class Options
 --- @field AutoDecode boolean    auto JSON decode response body
@@ -33,7 +54,7 @@ local _opts = ({...})[1] or {
     API          = true,
 }
 
-local _ver  = "v1.1.3"
+local _ver  = "v1.0"
 local _logf = string.format("%d-%s-log.txt", game.PlaceId, os.date("%d_%m_%y"))
 
 if _opts.SaveLogs then
@@ -76,8 +97,8 @@ local _mth = {
     HttpGet       = not syn,
     HttpGetAsync  = not syn,
     GetObjects    = true,
-    HttpPost      = not syn,
-    HttpPostAsync = not syn,
+    HttpPost      = false, 
+    HttpPostAsync = false,  
 }
 
 _S.UpdateConfig({ highlighting = _opts.Highlighting })
@@ -214,7 +235,7 @@ if syn and syn.websocket then
 end
 
 for m, en in _prs(_mth) do
-    if en then
+    if en and game[m] then 
         local _b
         _b = hookfunction(game[m], newcclosure(function(self, ...)
             _pf("game.%s(game, %s)\n\n", m, _S.FormatArguments(...))
@@ -223,16 +244,16 @@ for m, en in _prs(_mth) do
     end
 end
 
-if not debug.info(2, "f") then
-    _rcp("[HttpSpy] warning: outdated version detected\n")
-end
+-- if not debug.info(2, "f") then
+--     _rcp("[HttpSpy] warning: outdated version detected\n")
+-- end
 
-_rcp(_fmt(
-    " changelog : %s\n" ..
-    " logs      : %s\n\n",
-    _cmt,
-    _opts.SaveLogs and _logf or "disabled"
-))
+-- _rcp(_fmt(
+--     " changelog : %s\n" ..
+--     " logs      : %s\n\n",
+--     "N/A",
+--     _opts.SaveLogs and _logf or "disabled"
+-- ))
 
 if not _opts.API then return end
 
